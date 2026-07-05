@@ -1,12 +1,11 @@
 {
-  "name": "Arcalinda Dona de Casa",
-  "short_name": "Arcalinda",
-  "description": "Planeamento semanal de refeições, receitas moçambicanas e lista de compras",
+  "name": "O Frangão - Gestão de Caixa",
+  "short_name": "Frangão Caixa",
+  "description": "App de registo diário de caixa para Restaurante & Bar O Frangão",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
-  "background_color": "#12312C",
-  "theme_color": "#12312C",
+  "background_color": "#0d0600",
+  "theme_color": "#92400e",
   "orientation": "portrait",
   "icons": [
     {
