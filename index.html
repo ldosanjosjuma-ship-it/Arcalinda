@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arcalinda Dona de Casa</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12312C">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --teal:#12312C;
+    --teal-light:#1D4A41;
+    --cream:#F5EDE0;
+    --gold:#D9A21B;
+    --gold-dark:#B8850F;
+    --coral:#E86A4E;
+    --ink:#201B15;
+    --leaf:#4C7A57;
+    --paper:#FFFDF8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--teal);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    min-height:100vh;
+    padding-bottom:78px;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:Georgia,"Times New Roman",serif;
+    margin:0;
+    color:var(--teal);
+  }
+  header.top{
+    background:var(--teal);
+    color:var(--cream);
+    padding:22px 20px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:6px;
+    background:repeating-linear-gradient(90deg,var(--gold) 0 14px, transparent 14px 20px);
+  }
+  header.top h1{
+    color:var(--cream);
+    font-size:26px;
+    letter-spacing:0.3px;
+    font-weight:700;
+  }
+  header.top p{
+    margin:4px 0 0;
+    color:var(--gold);
+    font-size:13px;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:18px 16px 24px;
+  }
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  /* ---- Semana tab ---- */
+  .day-card{
+    background:var(--paper);
+    border-radius:14px;
+    margin-bottom:14px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(18,49,39,0.12);
+    border:1px solid rgba(18,49,39,0.08);
+  }
+  .day-card .day-head{
+    background:var(--teal-light);
+    color:var(--cream);
+    padding:10px 16px;
+    font-family:Georgia,serif;
+    font-weight:700;
+    font-size:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .day-card .day-head .day-badge{
+    font-size:11px;
+    background:var(--gold);
+    color:var(--teal);
+    padding:2px 8px;
+    border-radius:20px;
+    font-family:-apple-system,sans-serif;
+    font-weight:700;
+    letter-spacing:0.4px;
+  }
+  .meal-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-top:1px solid rgba(18,49,39,0.08);
+    gap:10px;
+  }
+  .meal-row .meal-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color:var(--leaf);
+    font-weight:700;
+    width:62px;
+    flex-shrink:0;
+  }
+  .meal-row .meal-value{
+    flex:1;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .meal-row .meal-value.empty{
+    color:#9a9184;
+    font-style:italic;
+  }
+  .edit-btn{
+    background:none;
+    border:1.5px solid var(--gold-dark);
+    color:var(--gold-dark);
+    border-radius:8px;
+    padding:6px 10px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .edit-btn:active{ background:var(--gold); color:var(--teal); }
+
+  .edit-panel{
+    padding:12px 16px 16px;
+    background:#FBF7EF;
+    border-top:1px solid rgba(18,49,39,0.08);
+  }
+  .edit-panel input[type="text"]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1.5px solid rgba(18,49,39,0.2);
+    font-size:14px;
+    margin-bottom:8px;
+  }
+  .recipe-pick-list{
+    max-height:180px;
+    overflow-y:auto;
+    margin-bottom:8px;
+    border-radius:8px;
+    border:1px solid rgba(18,49,39,0.12);
+  }
+  .recipe-pick-item{
+    padding:9px 12px;
+    font-size:14px;
+    border-bottom:1px solid rgba(18,49,39,0.08);
+    cursor:pointer;
+    background:var(--paper);
+  }
+  .recipe-pick-item:last-child{ border-bottom:none; }
+  .recipe-pick-item:active{ background:#EFE6D3; }
+  .edit-panel-actions{
+    display:flex;
+    gap:8px;
+  }
+  .btn-small{
+    flex:1;
+    padding:9px;
+    border-radius:8px;
+    border:none;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--teal); color:var(--cream); }
+  .btn-danger{ background:none; color:var(--coral); border:1.5px solid var(--coral); }
+  .btn-ghost{ background:none; color:var(--ink); border:1.5px solid rgba(18,49,39,0.25); }
+
+  /* ---- Receitas tab ---- */
+  .chip-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:10px;
+    margin-bottom:6px;
+  }
+  .chip{
+    flex-shrink:0;
+    padding:7px 14px;
+    border-radius:20px;
+    background:var(--teal-light);
+    color:var(--cream);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    white-space:nowrap;
+  }
+  .chip.active{ background:var(--gold); color:var(--teal); }
+  .recipe-card{
+    background:var(--paper);
+    border-radius:12px;
+    margin-bottom:10px;
+    box-shadow:0 2px 6px rgba(18,49,39,0.1);
+    overflow:hidden;
+  }
+  .recipe-card-head{
+    padding:13px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+  }
+  .recipe-card-head h3{ font-size:16px; }
+  .recipe-card-head .cat{
+    font-size:10.5px;
+    color:var(--leaf);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-weight:700;
+    display:block;
+    margin-top:2px;
+  }
+  .recipe-card-head .chevron{
+    font-size:18px;
+    color:var(--gold-dark);
+    transition:transform 0.2s;
+  }
+  .recipe-card.open .chevron{ transform:rotate(180deg); }
+  .recipe-card-body{
+    display:none;
+    padding:0 16px 16px;
+    border-top:1px dashed rgba(18,49,39,0.15);
+  }
+  .recipe-card.open .recipe-card-body{ display:block; }
+  .recipe-card-body ul{
+    margin:10px 0 0;
+    padding-left:18px;
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  /* ---- Lista (receipt) tab ---- */
+  .receipt{
+    background:var(--paper);
+    padding:20px 18px 24px;
+    font-family:"Courier New",monospace;
+    color:var(--ink);
+    position:relative;
+    box-shadow:0 4px 14px rgba(18,49,39,0.18);
+    margin-bottom:16px;
+  }
+  .receipt::before, .receipt::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;
+    height:10px;
+    background:
+      linear-gradient(-45deg, var(--teal) 5px, transparent 0) 0 100%/12px 12px repeat-x,
+      linear-gradient(45deg, var(--teal) 5px, transparent 0) 0 0/12px 12px repeat-x;
+  }
+  .receipt::before{ top:-9px; transform:rotate(180deg); }
+  .receipt::after{ bottom:-9px; }
+  .receipt h2{
+    text-align:center;
+    font-family:"Courier New",monospace;
+    font-size:16px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    border-bottom:1px dashed rgba(18,49,39,0.3);
+    padding-bottom:10px;
+    margin-bottom:6px;
+  }
+  .receipt .sub{
+    text-align:center;
+    font-size:11px;
+    color:#6b6255;
+    margin-bottom:14px;
+  }
+  .receipt-group-title{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--leaf);
+    margin:14px 0 4px;
+  }
+  .receipt-item{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding:5px 0;
+    font-size:14px;
+    border-bottom:1px dotted rgba(18,49,39,0.18);
+  }
+  .receipt-item .rline{
+    flex:1;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .receipt-item.checked .rline{
+    text-decoration:line-through;
+    color:var(--leaf);
+  }
+  .receipt-item input[type="checkbox"]{
+    width:17px;height:17px;
+    accent-color:var(--leaf);
+    flex-shrink:0;
+  }
+  .receipt-empty{
+    text-align:center;
+    padding:20px 0;
+    color:#9a9184;
+    font-size:13px;
+  }
+  .receipt-total{
+    margin-top:14px;
+    border-top:1px dashed rgba(18,49,39,0.3);
+    padding-top:10px;
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    font-weight:700;
+  }
+  .add-custom-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .add-custom-row input{
+    flex:1;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1.5px solid rgba(18,49,39,0.2);
+    font-size:14px;
+  }
+  .add-custom-row button{
+    background:var(--gold);
+    color:var(--teal);
+    border:none;
+    border-radius:8px;
+    padding:0 16px;
+    font-weight:700;
+    font-size:20px;
+    cursor:pointer;
+  }
+  .lista-actions{
+    display:flex;
+    gap:10px;
+  }
+  .lista-actions button{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  /* ---- Nav ---- */
+  nav.bottom{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:var(--paper);
+    display:flex;
+    box-shadow:0 -2px 10px rgba(18,49,39,0.15);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav.bottom button{
+    flex:1;
+    background:none;
+    border:none;
+    padding:12px 0 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    cursor:pointer;
+    color:#8a8172;
+    font-size:11.5px;
+    font-weight:700;
+  }
+  nav.bottom button .icon{ font-size:20px; }
+  nav.bottom button.active{ color:var(--teal); }
+  nav.bottom button.active .icon{ color:var(--gold-dark); }
+
+  .toast{
+    position:fixed;
+    bottom:88px;left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--teal);
+    color:var(--cream);
+    padding:10px 18px;
+    border-radius:20px;
+    font-size:13px;
+    opacity:0;
+    transition:all 0.25s;
+    pointer-events:none;
+    z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  :focus-visible{ outline:2.5px solid var(--gold); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Arcalinda</h1>
+  <p>Dona de Casa · Planeamento da semana</p>
+</header>
+
+<main>
+  <section id="tab-semana" class="section active"></section>
+  <section id="tab-receitas" class="section"></section>
+  <section id="tab-lista" class="section"></section>
+</main>
+
+<nav class="bottom">
+  <button data-tab="semana" class="active"><span class="icon">📅</span>Semana</button>
+  <button data-tab="receitas"><span class="icon">📖</span>Receitas</button>
+  <button data-tab="lista"><span class="icon">🧾</span>Lista</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- Dados ---------------- */
+const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+const MEALS = ['Almoço','Jantar'];
+
+const RECIPES = [
+  {id:'matapa', name:'Matapa', cat:'Peixe/Marisco', ing:[
+    ['Folhas de matapa (mandioca)','1 molho'],['Amendoim moído','200 g'],
+    ['Camarão seco','100 g'],['Leite de coco','400 ml'],
+    ['Cebola','1 unidade'],['Alho','2 dentes'],['Óleo','2 c. sopa']]},
+  {id:'xima', name:'Xima', cat:'Acompanhamento', ing:[
+    ['Farinha de milho','500 g'],['Água','1 litro'],['Sal','a gosto']]},
+  {id:'caril-camarao', name:'Caril de Camarão', cat:'Peixe/Marisco', ing:[
+    ['Camarão fresco','500 g'],['Leite de coco','400 ml'],['Tomate','3 unidades'],
+    ['Cebola','1 unidade'],['Alho','3 dentes'],['Caril em pó','1 c. sopa'],['Óleo','2 c. sopa']]},
+  {id:'caril-peixe', name:'Caril de Peixe', cat:'Peixe/Marisco', ing:[
+    ['Peixe fresco','600 g'],['Leite de coco','400 ml'],['Tomate','3 unidades'],
+    ['Cebola','1 unidade'],['Alho','3 dentes'],['Caril em pó','1 c. sopa']]},
+  {id:'frango-zambeziana', name:'Frango à Zambeziana', cat:'Frango/Carne', ing:[
+    ['Frango','1 unidade (1,2 kg)'],['Limão','2 unidades'],['Alho','4 dentes'],
+    ['Piripíri','a gosto'],['Manteiga','50 g'],['Óleo','3 c. sopa']]},
+  {id:'estufado-vaca', name:'Estufado de Carne de Vaca', cat:'Frango/Carne', ing:[
+    ['Carne de vaca','600 g'],['Batata','4 unidades'],['Cenoura','2 unidades'],
+    ['Tomate','3 unidades'],['Cebola','1 unidade'],['Alho','3 dentes']]},
+  {id:'feijao-nhemba', name:'Feijão Nhemba com Coco', cat:'Vegetariano', ing:[
+    ['Feijão nhemba','400 g'],['Leite de coco','400 ml'],['Cebola','1 unidade'],
+    ['Tomate','2 unidades'],['Óleo','2 c. sopa']]},
+  {id:'badjia', name:'Badjia (bolinhos de feijão)', cat:'Vegetariano', ing:[
+    ['Feijão fradinho','300 g'],['Cebola','1 unidade'],['Coentros','1 molho'],
+    ['Óleo para fritar','500 ml']]},
+  {id:'salada-cacana', name:'Salada de Cacana', cat:'Vegetariano', ing:[
+    ['Cacana','300 g'],['Amendoim moído','100 g'],['Cebola','1 unidade'],['Tomate','2 unidades']]},
+  {id:'arroz-coco', name:'Arroz de Coco', cat:'Acompanhamento', ing:[
+    ['Arroz','400 g'],['Leite de coco','400 ml'],['Cebola','1 unidade'],['Sal','a gosto']]},
+  {id:'chamussas', name:'Chamussas de Carne', cat:'Frango/Carne', ing:[
+    ['Massa para chamussas','20 folhas'],['Carne picada','300 g'],['Cebola','1 unidade'],
+    ['Cominhos','1 c. chá'],['Óleo para fritar','500 ml']]},
+  {id:'bolinhos-coco', name:'Bolinhos de Coco', cat:'Doces', ing:[
+    ['Coco ralado','200 g'],['Farinha de trigo','250 g'],['Açúcar','150 g'],
+    ['Ovos','2 unidades'],['Fermento','1 c. chá']]},
+];
+const CATS = ['Todos', ...Array.from(new Set(RECIPES.map(r=>r.cat)))];
+
+/* ---------------- Estado ---------------- */
+const STORAGE_KEY = 'arcaLinda_state_v1';
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { week:{}, customItems:[], checkedRecipes:{}, catFilter:'Todos', openRecipe:null, editingSlot:null };
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function slotKey(day, meal){ return day+'|'+meal; }
+
+/* ---------------- Navegação ---------------- */
+const tabs = ['semana','receitas','lista'];
+function showTab(name){
+  tabs.forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  document.querySelectorAll('nav.bottom button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===name);
+  });
+  render();
+}
+document.querySelectorAll('nav.bottom button').forEach(b=>{
+  b.addEventListener('click', ()=>showTab(b.dataset.tab));
+});
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ---------------- Render: Semana ---------------- */
+function renderSemana(){
+  const el = document.getElementById('tab-semana');
+  el.innerHTML = DAYS.map(day=>{
+    const rows = MEALS.map(meal=>{
+      const key = slotKey(day,meal);
+      const slot = state.week[key];
+      const isEditing = state.editingSlot === key;
+      let valueHtml;
+      if(slot){
+        const label = slot.type==='recipe' ? RECIPES.find(r=>r.id===slot.recipeId)?.name || '—' : slot.text;
+        valueHtml = `<span class="meal-value">${escapeHtml(label)}</span>`;
+      } else {
+        valueHtml = `<span class="meal-value empty">Por definir</span>`;
+      }
+      let panel = '';
+      if(isEditing){
+        const filtered = RECIPES;
+        panel = `
+          <div class="edit-panel">
+            <input type="text" id="custom-input" placeholder="Escrever refeição manualmente..." value="${slot && slot.type==='custom' ? escapeHtml(slot.text) : ''}">
+            <div class="recipe-pick-list">
+              ${filtered.map(r=>`<div class="recipe-pick-item" data-recipe="${r.id}">${escapeHtml(r.name)} <span style="color:#9a9184;font-size:12px;">· ${r.cat}</span></div>`).join('')}
+            </div>
+            <div class="edit-panel-actions">
+              <button class="btn-small btn-primary" data-action="save-custom">Guardar texto</button>
+              <button class="btn-small btn-danger" data-action="clear-slot">Limpar</button>
+              <button class="btn-small btn-ghost" data-action="cancel-edit">Fechar</button>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="meal-row" data-day="${day}" data-meal="${meal}">
+          <span class="meal-label">${meal}</span>
+          ${valueHtml}
+          <button class="edit-btn" data-action="toggle-edit" data-key="${key}">${isEditing?'Fechar':'Editar'}</button>
+        </div>
+        ${panel}`;
+    }).join('');
+    return `<div class="day-card"><div class="day-head">${day}</div>${rows}</div>`;
+  }).join('');
+
+  el.querySelectorAll('[data-action="toggle-edit"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.key;
+      state.editingSlot = state.editingSlot === key ? null : key;
+      saveState(); renderSemana();
+    });
+  });
+  el.querySelectorAll('.recipe-pick-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const key = state.editingSlot;
+      state.week[key] = { type:'recipe', recipeId:item.dataset.recipe };
+      state.editingSlot = null;
+      saveState(); renderSemana();
+      toast('Refeição adicionada');
+    });
+  });
+  el.querySelectorAll('[data-action="save-custom"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = state.editingSlot;
+      const input = document.getElementById('custom-input');
+      const text = input.value.trim();
+      if(text){
+        state.week[key] = { type:'custom', text };
+        toast('Guardado');
+      }
+      state.editingSlot = null;
+      saveState(); renderSemana();
+    });
+  });
+  el.querySelectorAll('[data-action="clear-slot"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = state.editingSlot;
+      delete state.week[key];
+      state.editingSlot = null;
+      saveState(); renderSemana();
+    });
+  });
+  el.querySelectorAll('[data-action="cancel-edit"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.editingSlot = null;
+      saveState(); renderSemana();
+    });
+  });
+}
+
+/* ---------------- Render: Receitas ---------------- */
+function renderReceitas(){
+  const el = document.getElementById('tab-receitas');
+  const filtered = state.catFilter==='Todos' ? RECIPES : RECIPES.filter(r=>r.cat===state.catFilter);
+  el.innerHTML = `
+    <div class="chip-row">
+      ${CATS.map(c=>`<button class="chip ${c===state.catFilter?'active':''}" data-cat="${c}">${c}</button>`).join('')}
+    </div>
+    ${filtered.map(r=>`
+      <div class="recipe-card ${state.openRecipe===r.id?'open':''}" data-recipe="${r.id}">
+        <div class="recipe-card-head">
+          <div>
+            <h3>${escapeHtml(r.name)}</h3>
+            <span class="cat">${escapeHtml(r.cat)}</span>
+          </div>
+          <span class="chevron">⌄</span>
+        </div>
+        <div class="recipe-card-body">
+          <ul>${r.ing.map(i=>`<li>${escapeHtml(i[0])} — ${escapeHtml(i[1])}</li>`).join('')}</ul>
+        </div>
+      </div>`).join('')}
+  `;
+  el.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      state.catFilter = chip.dataset.cat;
+      saveState(); renderReceitas();
+    });
+  });
+  el.querySelectorAll('.recipe-card-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      const card = head.closest('.recipe-card');
+      const id = card.dataset.recipe;
+      state.openRecipe = state.openRecipe===id ? null : id;
+      saveState(); renderReceitas();
+    });
+  });
+}
+
+/* ---------------- Render: Lista ---------------- */
+function getUsedRecipes(){
+  const used = new Map();
+  Object.values(state.week).forEach(slot=>{
+    if(slot && slot.type==='recipe'){
+      used.set(slot.recipeId, (used.get(slot.recipeId)||0)+1);
+    }
+  });
+  return used;
+}
+
+function renderLista(){
+  const el = document.getElementById('tab-lista');
+  const used = getUsedRecipes();
+  const recipeGroups = Array.from(used.entries()).map(([id,count])=>{
+    const r = RECIPES.find(rr=>rr.id===id);
+    return { r, count };
+  }).filter(g=>g.r);
+
+  let itemsHtml = '';
+  if(recipeGroups.length===0 && state.customItems.length===0){
+    itemsHtml = `<div class="receipt-empty">Sem itens. Adiciona refeições na Semana<br>ou escreve algo abaixo.</div>`;
+  } else {
+    recipeGroups.forEach(g=>{
+      const checked = !!state.checkedRecipes[g.r.id];
+      itemsHtml += `<div class="receipt-group-title">${escapeHtml(g.r.name)}${g.count>1?' ×'+g.count:''}</div>`;
+      itemsHtml += g.r.ing.map((i,idx)=>`
+        <div class="receipt-item ${checked?'checked':''}">
+          <input type="checkbox" data-recipe-check="${g.r.id}" ${checked?'checked':''}>
+          <span class="rline"><span>${escapeHtml(i[0])}</span><span>${escapeHtml(i[1])}</span></span>
+        </div>`).join('');
+    });
+    if(state.customItems.length){
+      itemsHtml += `<div class="receipt-group-title">Outros</div>`;
+      itemsHtml += state.customItems.map(item=>`
+        <div class="receipt-item ${item.checked?'checked':''}">
+          <input type="checkbox" data-custom-check="${item.id}" ${item.checked?'checked':''}>
+          <span class="rline"><span>${escapeHtml(item.text)}</span><span></span></span>
+          <button data-custom-remove="${item.id}" style="background:none;border:none;color:var(--coral);font-size:16px;cursor:pointer;">×</button>
+        </div>`).join('');
+    }
+  }
+
+  const totalItems = recipeGroups.reduce((s,g)=>s+g.r.ing.length,0) + state.customItems.length;
+  const totalChecked = recipeGroups.filter(g=>state.checkedRecipes[g.r.id]).reduce((s,g)=>s+g.r.ing.length,0)
+    + state.customItems.filter(i=>i.checked).length;
+
+  el.innerHTML = `
+    <div class="receipt">
+      <h2>Lista de Compras</h2>
+      <div class="sub">Arcalinda Dona de Casa · ${new Date().toLocaleDateString('pt-PT')}</div>
+      ${itemsHtml}
+      ${totalItems>0 ? `<div class="receipt-total"><span>Itens</span><span>${totalChecked}/${totalItems} comprados</span></div>` : ''}
+    </div>
+    <div class="add-custom-row">
+      <input type="text" id="new-custom-item" placeholder="Adicionar outro item...">
+      <button id="add-custom-btn">+</button>
+    </div>
+    <div class="lista-actions">
+      <button class="btn-primary" id="share-btn" style="border:none;">Partilhar</button>
+      <button class="btn-ghost" id="clear-checked-btn">Limpar comprados</button>
+    </div>
+  `;
+
+  el.querySelectorAll('[data-recipe-check]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const id = cb.dataset.recipeCheck;
+      state.checkedRecipes[id] = cb.checked;
+      saveState(); renderLista();
+    });
+  });
+  el.querySelectorAll('[data-custom-check]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const id = cb.dataset.customCheck;
+      const item = state.customItems.find(i=>i.id===id);
+      if(item) item.checked = cb.checked;
+      saveState(); renderLista();
+    });
+  });
+  el.querySelectorAll('[data-custom-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.customItems = state.customItems.filter(i=>i.id!==btn.dataset.customRemove);
+      saveState(); renderLista();
+    });
+  });
+  document.getElementById('add-custom-btn').addEventListener('click', addCustomItem);
+  document.getElementById('new-custom-item').addEventListener('keydown', (e)=>{
+    if(e.key==='Enter') addCustomItem();
+  });
+  document.getElementById('share-btn').addEventListener('click', shareList);
+  document.getElementById('clear-checked-btn').addEventListener('click', ()=>{
+    state.checkedRecipes = {};
+    state.customItems = state.customItems.filter(i=>!i.checked);
+    saveState(); renderLista();
+    toast('Itens comprados removidos');
+  });
+}
+
+function addCustomItem(){
+  const input = document.getElementById('new-custom-item');
+  const text = input.value.trim();
+  if(!text) return;
+  state.customItems.push({ id: 'c'+Date.now(), text, checked:false });
+  input.value='';
+  saveState(); renderLista();
+}
+
+function buildListText(){
+  const used = getUsedRecipes();
+  let lines = ['LISTA DE COMPRAS — Arcalinda Dona de Casa', new Date().toLocaleDateString('pt-PT'), ''];
+  Array.from(used.entries()).forEach(([id,count])=>{
+    const r = RECIPES.find(rr=>rr.id===id);
+    if(!r) return;
+    lines.push(`${r.name}${count>1?' ×'+count:''}:`);
+    r.ing.forEach(i=> lines.push(`  - ${i[0]} — ${i[1]}`));
+    lines.push('');
+  });
+  if(state.customItems.length){
+    lines.push('Outros:');
+    state.customItems.forEach(i=> lines.push(`  - ${i.text}`));
+  }
+  return lines.join('\n');
+}
+
+async function shareList(){
+  const text = buildListText();
+  if(navigator.share){
+    try{ await navigator.share({ title:'Lista de Compras', text }); return; }catch(e){}
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('Lista copiada para a área de transferência');
+  }catch(e){
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'lista-de-compras.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Lista descarregada');
+  }
+}
+
+/* ---------------- Utilitários ---------------- */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+
+function render(){
+  const active = document.querySelector('nav.bottom button.active').dataset.tab;
+  if(active==='semana') renderSemana();
+  else if(active==='receitas') renderReceitas();
+  else if(active==='lista') renderLista();
+}
+
+render();
+
+/* ---------------- Service Worker ---------------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
